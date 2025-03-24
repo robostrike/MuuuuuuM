@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'; // Added missing useState import
+import { useEffect, useState, Dispatch, SetStateAction } from 'react'; // Fixed imports
 
 const LOCAL_STORAGE_KEY = 'gridConfig';
 
@@ -11,7 +11,7 @@ export const loadGridConfig = (): Record<string, any> | null => {
   return config ? JSON.parse(config) : null;
 };
 
-export const useLocalStorage = <T extends Record<string, any>>(initialValue: T): [T, React.Dispatch<React.SetStateAction<T>>] => {
+export const useLocalStorage = <T extends Record<string, any>>(initialValue: T): [T, Dispatch<SetStateAction<T>>] => {
   const [value, setValue] = useState<T>(() => {
     const storedValue = loadGridConfig();
     return storedValue !== null ? (storedValue as T) : initialValue;
