@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import CartesianGrid from './components/CartesianGrid';
+import CartesianGrid from './CartesianGrid';
 import { ThemeProvider } from '@mui/material/styles';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
