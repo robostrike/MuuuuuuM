@@ -5,10 +5,9 @@ import { Tooltip } from '@mui/material';
 interface NameCardProps {
   name: string;
   index: number;
-  onClick: () => void; // Add onClick to the props
 }
 
-const NameCard: React.FC<NameCardProps> = ({ name, index, onClick }) => {
+const NameCard: React.FC<NameCardProps> = ({ name, index }) => {
   const [{ isDragging }, dragRef] = useDrag(() => ({
     type: 'NAME_CARD',
     item: () => {
@@ -44,7 +43,6 @@ const NameCard: React.FC<NameCardProps> = ({ name, index, onClick }) => {
           cursor: 'grab',
           opacity: isDragging ? 0.5 : 1,
         }}
-        onClick={onClick}
       >
         {name[0]}
       </div>
