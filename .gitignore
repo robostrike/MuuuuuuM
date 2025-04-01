@@ -25,3 +25,8 @@ dist-ssr
 
 # Environment files
 *.env
+.env
+.env.development
+.env.development.local
+*.env.development
+*.env.development.local
