@@ -1,0 +1,45 @@
+{
+    "words": [
+        { "id": 1, "word": "coffee" },
+        { "id": 2, "word": "dog" },
+        { "id": 3, "word": "Japan" },
+        { "id": 4, "word": "Dinosaur" },
+        { "id": 5, "word": "Arizona" },
+        { "id": 6, "word": "Probably" },
+        { "id": 7, "word": "Breeze" },
+        { "id": 8, "word": "Love" },
+        { "id": 9, "word": "9" },
+        { "id": 10, "word": "Nice" },
+        { "id": 11, "word": "Nine" },
+        { "id": 12, "word": "Develope" },
+        { "id": 13, "word": "Taxes" },
+        { "id": 14, "word": ".jpg" },
+        { "id": 15, "word": "10:52 pm" },
+        { "id": 16, "word": "Ocean" },
+        { "id": 17, "word": "Guitar" },
+        { "id": 18, "word": "Elephant" },
+        { "id": 19, "word": "Tuesday" },
+        { "id": 20, "word": "Sparkle" },
+        { "id": 21, "word": "Keyboard" },
+        { "id": 22, "word": "Mountain" },
+        { "id": 23, "word": "Laughter" },
+        { "id": 24, "word": "42" },
+        { "id": 25, "word": "Cozy" },
+        { "id": 26, "word": "Eleven" },
+        { "id": 27, "word": "Adventure" },
+        { "id": 28, "word": "Income" },
+        { "id": 29, "word": ".png" },
+        { "id": 30, "word": "3:15 am" },
+        { "id": 31, "word": "Sunshine" },
+        { "id": 32, "word": "Chocolate" },
+        { "id": 33, "word": "Galaxy" },
+        { "id": 34, "word": "Whisper" },
+        { "id": 35, "word": "Umbrella" }
+    ],
+    "gifs": [
+        { "id": 1, "gif": "/MuuuuuuM/content/MarriageStory.gif" }
+    ],
+    "png": [
+        { "id": 1, "png": "/MuuuuuuM/content/MarriageStory.png" }
+    ]
+}

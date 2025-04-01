@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .test-container {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ccc;
+        }
+        img {
+            max-width: 100%;
+            max-height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Image Loading Test</h1>
+    
+    <div class="test-container">
+        <h2>Test 1: Direct Path</h2>
+        <img src="content/MarriageStory.gif" alt="Marriage Story GIF" />
+        <p>Path: content/MarriageStory.gif</p>
+    </div>
+
+    <div class="test-container">
+        <h2>Test 2: Root Path</h2>
+        <img src="/content/MarriageStory.gif" alt="Marriage Story GIF" />
+        <p>Path: /content/MarriageStory.gif</p>
+    </div>
+
+    <div class="test-container">
+        <h2>Test 3: Base Path</h2>
+        <img src="/MuuuuuuM/content/MarriageStory.gif" alt="Marriage Story GIF" />
+        <p>Path: /MuuuuuuM/content/MarriageStory.gif</p>
+    </div>
+
+    <div class="test-container">
+        <h2>Test 4: PNG Direct Path</h2>
+        <img src="content/MarriageStory.png" alt="Marriage Story PNG" />
+        <p>Path: content/MarriageStory.png</p>
+    </div>
+
+    <div class="test-container">
+        <h2>Test 5: PNG Root Path</h2>
+        <img src="/content/MarriageStory.png" alt="Marriage Story PNG" />
+        <p>Path: /content/MarriageStory.png</p>
+    </div>
+
+    <div class="test-container">
+        <h2>Test 6: PNG Base Path</h2>
+        <img src="/MuuuuuuM/content/MarriageStory.png" alt="Marriage Story PNG" />
+        <p>Path: /MuuuuuuM/content/MarriageStory.png</p>
+    </div>
+</body>
+</html>
