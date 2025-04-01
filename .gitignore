@@ -22,6 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+<<<<<<< HEAD
 
 # Environment files
 *.env
@@ -30,3 +31,5 @@ dist-ssr
 .env.development.local
 *.env.development
 *.env.development.local
+=======
+>>>>>>> parent of 8e7c22d (Accounting creation with firebase)
