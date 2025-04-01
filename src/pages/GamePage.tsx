@@ -39,7 +39,7 @@ const SESSION_ID_KEY = 'muuuuuum_session_id';
 
 const GamePage = () => {
   // State for content bank and current content
-  const [contentBank, setContentBank] = useState<ContentBank | null>(null);
+  // Removed unused contentBank state
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [dbError, setDbError] = useState<string | null>(null);
@@ -117,7 +117,7 @@ const GamePage = () => {
           }));
         }
         
-        setContentBank(data);
+        // Removed setting contentBank as it is unused
         console.log('Content bank loaded:', data);
         
         // Check if game was already completed

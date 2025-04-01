@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Box, Paper } from '@mui/material';
 
 // Grid settings

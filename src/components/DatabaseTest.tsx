@@ -46,7 +46,7 @@ const DatabaseTest = () => {
     
     try {
       // Simple query to check if we can connect
-      const { data, error } = await supabase.from('test_items').select('count', { count: 'exact' });
+      const { error } = await supabase.from('test_items').select('count', { count: 'exact' });
       
       if (error) throw error;
       
@@ -93,7 +93,7 @@ const DatabaseTest = () => {
     setError(null);
     
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('test_items')
         .insert([{ name, description }])
         .select();
