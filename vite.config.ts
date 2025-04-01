@@ -1,7 +1,6 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
   base: "/MuuuuuuM/",
@@ -11,5 +10,8 @@ export default defineConfig({
   },
   preview: {
     port: 4000
-  }
-})
+  },
+  define: {
+    'process.env': {}, // Prevent "process is not defined" errors
+  },
+});

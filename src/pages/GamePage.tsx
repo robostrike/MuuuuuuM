@@ -53,6 +53,7 @@ const GamePage = () => {
   const [savedMarkers, setSavedMarkers] = useState<MarkerData[]>([]);
   const [gameCompleted, setGameCompleted] = useState(false);
   const [saveInProgress, setSaveInProgress] = useState(false);
+  const [items, setItems] = useState<{ id: number; name: string; x: number; y: number }[]>([]);
   
   // Initialize or get session ID
   useEffect(() => {
@@ -201,7 +202,21 @@ const GamePage = () => {
 
   // Place marker on the grid
   const handlePlaceMarker = (x: number, y: number) => {
-    setMarkerPosition({ x, y });
+    if (currentContent) {
+      const newItem = {
+        id: currentContent.item.id,
+        name: currentContent.item.word || currentContent.item.gif || currentContent.item.png || 'Content',
+        x,
+        y,
+      };
+
+      setItems((prev) => {
+        const filteredItems = prev.filter((item) => item.id !== newItem.id);
+        return [...filteredItems, newItem];
+      });
+
+      setMarkerPosition({ x, y });
+    }
   };
 
   // Show the current content item
@@ -272,7 +287,7 @@ const GamePage = () => {
     setContentQueue(newQueue);
     
     // Reset for next item
-    setMarkerPosition(null);
+    setMarkerPosition(null); // Clear marker position after saving
     setContentVisible(false);
     
     if (newQueue.length > 0) {
@@ -361,6 +376,7 @@ const GamePage = () => {
                 onPlaceMarker={handlePlaceMarker}
                 markerPosition={markerPosition}
                 disabled={!contentVisible || gameCompleted}
+                data={items} // Pass items to display on the grid
               />
               
               {/* Action Buttons */}
@@ -382,6 +398,15 @@ const GamePage = () => {
                   Reset Game
                 </Button>
               </Box>
+
+              {/* Display marker position */}
+              {markerPosition && (
+                <Box sx={{ textAlign: 'center', mb: 4 }}>
+                  <Typography variant="body1">
+                    Current Marker Position: ({markerPosition.x}, {markerPosition.y})
+                  </Typography>
+                </Box>
+              )}
               
               {/* Progress Indicator */}
               <Box sx={{ mb: 2 }}>

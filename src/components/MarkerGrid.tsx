@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useRef } from 'react';
 import { Box, Paper } from '@mui/material';
 
 // Grid settings
@@ -10,11 +10,11 @@ interface MarkerGridProps {
   onPlaceMarker: (x: number, y: number) => void;
   markerPosition: { x: number, y: number } | null;
   disabled?: boolean;
+  data: { id: number; name: string; x: number; y: number }[]; // Define the data prop
 }
 
-const MarkerGrid: React.FC<MarkerGridProps> = ({ onPlaceMarker, markerPosition, disabled = false }) => {
+const MarkerGrid: React.FC<MarkerGridProps> = ({ onPlaceMarker, markerPosition, disabled = false, data }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [hoverPosition, setHoverPosition] = useState<{ x: number, y: number } | null>(null);
 
   // Handle click on grid to place marker
   const handleGridClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -26,33 +26,12 @@ const MarkerGrid: React.FC<MarkerGridProps> = ({ onPlaceMarker, markerPosition, 
       const rawX = e.clientX - rect.left - gridWidth / 2;
       const rawY = e.clientY - rect.top - gridHeight / 2;
       
-      // Snap to grid
+      // Snap to grid and align to the exact center of the nearest dot
       const x = Math.round(rawX / gridSize) * gridSize;
       const y = Math.round(rawY / gridSize) * gridSize;
       
       onPlaceMarker(x, y);
     }
-  };
-
-  // Track mouse position for hover effect
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (disabled) return;
-    
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      const rawX = e.clientX - rect.left - gridWidth / 2;
-      const rawY = e.clientY - rect.top - gridHeight / 2;
-      
-      // Snap to grid
-      const x = Math.round(rawX / gridSize) * gridSize;
-      const y = Math.round(rawY / gridSize) * gridSize;
-      
-      setHoverPosition({ x, y });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    setHoverPosition(null);
   };
 
   return (
@@ -69,28 +48,43 @@ const MarkerGrid: React.FC<MarkerGridProps> = ({ onPlaceMarker, markerPosition, 
         {/* Axis Labels */}
         <Box sx={{
           position: 'absolute',
-          top: gridHeight / 2 + 20,
-          left: gridWidth / 2 - 50,
+          top: gridHeight / 2 - 10,
+          left: gridWidth + 10,
+          transform: 'rotate(90deg)',
           textAlign: 'center',
         }}>
-          X Axis: Like / Dislike
+          Like
         </Box>
         <Box sx={{
           position: 'absolute',
-          top: gridHeight / 2 - 50,
-          left: gridWidth / 2 + 10,
+          top: gridHeight / 2 - 10,
+          left: -60,
           transform: 'rotate(-90deg)',
           textAlign: 'center',
         }}>
-          Y Axis: Engaging / Disengaging
+          Dislike
+        </Box>
+        <Box sx={{
+          position: 'absolute',
+          top: -30,
+          left: `calc(50% - 30px)`, // Adjusted for proper centering
+          textAlign: 'center',
+        }}>
+          Engaging
+        </Box>
+        <Box sx={{
+          position: 'absolute',
+          top: gridHeight + 10,
+          left: `calc(50% - 50px)`, // Adjusted for proper centering
+          textAlign: 'center',
+        }}>
+          Disengaging
         </Box>
 
         {/* Grid */}
         <Paper
           ref={containerRef}
           onClick={handleGridClick}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
           sx={{
             position: 'relative',
             width: `${gridWidth}px`,
@@ -101,10 +95,10 @@ const MarkerGrid: React.FC<MarkerGridProps> = ({ onPlaceMarker, markerPosition, 
           }}
         >
           {/* Grid dots */}
-          {Array.from({ length: gridWidth / gridSize + 1 }).map((_, xIndex) =>
-            Array.from({ length: gridHeight / gridSize + 1 }).map((_, yIndex) => {
-              const x = xIndex * gridSize - gridWidth / 2;
-              const y = yIndex * gridSize - gridHeight / 2;
+          {Array.from({ length: gridWidth / gridSize }).map((_, xIndex) =>
+            Array.from({ length: gridHeight / gridSize }).map((_, yIndex) => {
+              const x = xIndex * gridSize - gridWidth / 2 + gridSize / 2; // Adjusted to center dots
+              const y = yIndex * gridSize - gridHeight / 2 + gridSize / 2; // Adjusted to center dots
               return (
                 <Box
                   key={`${xIndex}-${yIndex}`}
@@ -144,22 +138,6 @@ const MarkerGrid: React.FC<MarkerGridProps> = ({ onPlaceMarker, markerPosition, 
             }}
           />
 
-          {/* Hover position indicator */}
-          {hoverPosition && !disabled && !markerPosition && (
-            <Box
-              sx={{
-                position: 'absolute',
-                width: '20px',
-                height: '20px',
-                borderRadius: '50%',
-                border: '2px dashed #666',
-                top: hoverPosition.y + gridHeight / 2 - 10,
-                left: hoverPosition.x + gridWidth / 2 - 10,
-                pointerEvents: 'none',
-              }}
-            />
-          )}
-
           {/* Placed marker */}
           {markerPosition && (
             <Box
@@ -169,20 +147,32 @@ const MarkerGrid: React.FC<MarkerGridProps> = ({ onPlaceMarker, markerPosition, 
                 height: '20px',
                 borderRadius: '50%',
                 backgroundColor: 'red',
-                top: markerPosition.y + gridHeight / 2 - 10,
-                left: markerPosition.x + gridWidth / 2 - 10,
+                top: markerPosition.y + gridHeight / 2 - 10, // Align to center of the dot
+                left: markerPosition.x + gridWidth / 2 - 10, // Align to center of the dot
                 zIndex: 10,
               }}
             />
           )}
-        </Paper>
 
-        {/* Display coordinates if marker exists */}
-        {markerPosition && (
-          <Box sx={{ mt: 1, textAlign: 'center' }}>
-            Marker at: ({markerPosition.x}, {markerPosition.y})
-          </Box>
-        )}
+          {/* Render markers based on the data prop */}
+          {data.map((item) => (
+            <Box
+              key={item.id}
+              sx={{
+                position: 'absolute',
+                top: item.y + gridHeight / 2, // Removed -5 adjustment
+                left: item.x + gridWidth / 2, // Removed -5 adjustment
+                transform: 'translate(-50%, -50%)', // Center the marker
+                backgroundColor: 'blue',
+                width: '10px',
+                height: '10px',
+                borderRadius: '50%',
+              }}
+            >
+              <span style={{ color: 'white', fontSize: '10px' }}>{item.name}</span>
+            </Box>
+          ))}
+        </Paper>
       </Box>
     </Box>
   );
