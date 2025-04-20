@@ -9,7 +9,6 @@ const initialNames = ['Alice', 'Bob', 'Charlie', 'David', 'Eve'];
 const HomePage = () => {
   const [items, setItems] = useState<{ id: number; name: string; x: number; y: number }[]>([]);
   const [hoveredItem, setHoveredItem] = useState<{ id: number; name: string; x: number; y: number } | null>(null);
-  const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -20,23 +19,12 @@ const HomePage = () => {
       const containerRect = containerRef.current?.getBoundingClientRect();
 
       if (offset && containerRect) {
-        // Calculate raw position relative to the grid container
-        let rawX = offset.x - containerRect.left - containerRect.width / 2;
-        let rawY = offset.y - containerRect.top - containerRect.height / 2;
-
-        // Snap position to the nearest grid point
-        const x = Math.round(rawX / 20) * 20; // 20 is the grid size
-        const y = Math.round(rawY / 20) * 20;
-
-        // Clamp position within grid boundaries
-        const clampedX = Math.max(-250, Math.min(250, x)); // Grid width/2
-        const clampedY = Math.max(-250, Math.min(250, y)); // Grid height/2
+        const x = Math.round(offset.x - containerRect.left - 250); // Adjusted to center relative to grid
+        const y = Math.round(offset.y - containerRect.top - 250); // Adjusted to center relative to grid
 
         setItems((prev) => {
           const filteredItems = prev.filter((existingItem) => existingItem.id !== item.id);
-          const newItem = { id: item.id, name: item.name, x: clampedX, y: clampedY };
-          console.log(`Item placed: ${newItem.name} at X: ${newItem.x}, Y: ${newItem.y}`); // Log item details
-          return [...filteredItems, newItem];
+          return [...filteredItems, { id: item.id, name: item.name, x, y }];
         });
       }
     },
@@ -61,36 +49,6 @@ const HomePage = () => {
   const combinedRef = (node: HTMLDivElement | null) => {
     containerRef.current = node;
     dropRef(node);
-  };
-
-  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      // Adjust mouse position to be relative to the center of the grid
-      const x = Math.round(event.clientX - rect.left - rect.width / 2);
-      const y = Math.round(event.clientY - rect.top - rect.height / 2);
-      setMousePosition({ x, y });
-    }
-  };
-
-  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault(); // Allow drop
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      // Calculate raw position relative to the grid container
-      let rawX = event.clientX - rect.left - rect.width / 2;
-      let rawY = event.clientY - rect.top - rect.height / 2;
-
-      // Snap position to the nearest grid point
-      const x = Math.round(rawX / 20) * 20; // 20 is the grid size
-      const y = Math.round(rawY / 20) * 20;
-
-      // Clamp position within grid boundaries
-      const clampedX = Math.max(-250, Math.min(250, x)); // Grid width/2
-      const clampedY = Math.max(-250, Math.min(250, y)); // Grid height/2
-
-      setMousePosition({ x: clampedX, y: clampedY });
-    }
   };
 
   useEffect(() => {
@@ -138,8 +96,6 @@ const HomePage = () => {
       <h1>Bridges: Build or Burn</h1>
       <div
         ref={combinedRef}
-        onMouseMove={handleMouseMove} // Attach mouse move handler
-        onDragOver={handleDragOver} // Update mouse position during drag
         style={{
           position: 'relative',
           width: '100%',
@@ -208,12 +164,6 @@ const HomePage = () => {
       {hoveredItem && (
         <div style={{ marginTop: '10px', fontSize: '16px', color: 'gray' }}>
           Hovering over: {hoveredItem.name} (ID: {hoveredItem.id}, X: {hoveredItem.x}, Y: {hoveredItem.y})
-        </div>
-      )}
-      {/* Display mouse position */}
-      {mousePosition && (
-        <div style={{ marginTop: '10px', fontSize: '14px', color: 'gray' }}>
-          Mouse Position: ({mousePosition.x}, {mousePosition.y})
         </div>
       )}
     </div>

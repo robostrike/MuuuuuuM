@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { Box, Paper } from '@mui/material';
 
 // Grid settings
@@ -15,6 +15,7 @@ interface MarkerGridProps {
 
 const MarkerGrid: React.FC<MarkerGridProps> = ({ onPlaceMarker, markerPosition, disabled = false, data }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | null>(null);
 
   // Handle click on grid to place marker
   const handleGridClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -34,6 +35,20 @@ const MarkerGrid: React.FC<MarkerGridProps> = ({ onPlaceMarker, markerPosition, 
     }
   };
 
+  // Handle mouse move to track position
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const x = Math.round((e.clientX - rect.left - gridWidth / 2) / gridSize) * gridSize;
+      const y = Math.round((e.clientY - rect.top - gridHeight / 2) / gridSize) * gridSize;
+      setMousePosition({ x, y });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setMousePosition(null); // Clear position when mouse leaves the grid
+  };
+
   return (
     <Box sx={{ 
       position: 'relative', 
@@ -44,49 +59,17 @@ const MarkerGrid: React.FC<MarkerGridProps> = ({ onPlaceMarker, markerPosition, 
       mb: 4
     }}>
       {/* Grid container */}
-      <Box sx={{ position: 'relative', width: `${gridWidth}px`, height: `${gridHeight}px` }}>
-        {/* Axis Labels */}
-        <Box sx={{
-          position: 'absolute',
-          top: gridHeight / 2 - 10,
-          left: gridWidth + 10,
-          transform: 'rotate(90deg)',
-          textAlign: 'center',
-        }}>
-          Like
-        </Box>
-        <Box sx={{
-          position: 'absolute',
-          top: gridHeight / 2 - 10,
-          left: -60,
-          transform: 'rotate(-90deg)',
-          textAlign: 'center',
-        }}>
-          Dislike
-        </Box>
-        <Box sx={{
-          position: 'absolute',
-          top: -30,
-          left: `calc(50% - 30px)`, // Adjusted for proper centering
-          textAlign: 'center',
-        }}>
-          Engaging
-        </Box>
-        <Box sx={{
-          position: 'absolute',
-          top: gridHeight + 10,
-          left: `calc(50% - 50px)`, // Adjusted for proper centering
-          textAlign: 'center',
-        }}>
-          Disengaging
-        </Box>
-
+      <Box
+        sx={{ position: 'relative', width: `${gridWidth}px`, height: `${gridHeight}px` }}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+      >
         {/* Grid */}
         <Paper
           ref={containerRef}
           onClick={handleGridClick}
           sx={{
-            position: 'relative',
+            position: 'absolute',
             width: `${gridWidth}px`,
             height: `${gridHeight}px`,
             border: '1px solid black',
@@ -97,8 +80,8 @@ const MarkerGrid: React.FC<MarkerGridProps> = ({ onPlaceMarker, markerPosition, 
           {/* Grid dots */}
           {Array.from({ length: gridWidth / gridSize }).map((_, xIndex) =>
             Array.from({ length: gridHeight / gridSize }).map((_, yIndex) => {
-              const x = xIndex * gridSize - gridWidth / 2 + gridSize / 2; // Adjusted to center dots
-              const y = yIndex * gridSize - gridHeight / 2 + gridSize / 2; // Adjusted to center dots
+              const x = xIndex * gridSize - gridWidth / 2; // Adjusted to align with the center
+              const y = yIndex * gridSize - gridHeight / 2; // Adjusted to align with the center
               return (
                 <Box
                   key={`${xIndex}-${yIndex}`}
@@ -108,8 +91,8 @@ const MarkerGrid: React.FC<MarkerGridProps> = ({ onPlaceMarker, markerPosition, 
                     height: '4px',
                     borderRadius: '50%',
                     backgroundColor: 'gray',
-                    top: y + gridHeight / 2 - 2,
-                    left: x + gridWidth / 2 - 2,
+                    top: y + gridHeight / 2 + gridSize/2, // Adjusted for alignment (1px correction and 31px offset)
+                    left: x + gridWidth / 2 + gridSize/2, // Adjusted for alignment (30px correction and 31px offset)
                   }}
                 />
               );
@@ -123,7 +106,7 @@ const MarkerGrid: React.FC<MarkerGridProps> = ({ onPlaceMarker, markerPosition, 
               width: '100%',
               height: '1px',
               backgroundColor: 'black',
-              top: gridHeight / 2,
+              top: gridHeight / 2, // Centered horizontally
               left: 0,
             }}
           />
@@ -134,7 +117,7 @@ const MarkerGrid: React.FC<MarkerGridProps> = ({ onPlaceMarker, markerPosition, 
               height: '100%',
               backgroundColor: 'black',
               top: 0,
-              left: gridWidth / 2,
+              left: gridWidth / 2, // Centered vertically
             }}
           />
 
@@ -147,8 +130,9 @@ const MarkerGrid: React.FC<MarkerGridProps> = ({ onPlaceMarker, markerPosition, 
                 height: '20px',
                 borderRadius: '50%',
                 backgroundColor: 'red',
-                top: markerPosition.y + gridHeight / 2 - 10, // Align to center of the dot
-                left: markerPosition.x + gridWidth / 2 - 10, // Align to center of the dot
+                // Align to the center of the nearest grid dot
+                top: markerPosition.y + gridHeight / 2 - 10 + gridSize / 2, // Adjusted for marker size and grid alignment
+                left: markerPosition.x + gridWidth / 2 - 10 + gridSize / 2, // Adjusted for marker size and grid alignment
                 zIndex: 10,
               }}
             />
@@ -160,17 +144,16 @@ const MarkerGrid: React.FC<MarkerGridProps> = ({ onPlaceMarker, markerPosition, 
               key={item.id}
               sx={{
                 position: 'absolute',
-                top: item.y + gridHeight / 2, // Removed -5 adjustment
-                left: item.x + gridWidth / 2, // Removed -5 adjustment
+                // Align to the center of the nearest grid dot
+                top: item.y + gridHeight / 2 - 5 + gridSize / 2, // Adjusted for marker size and grid alignment
+                left: item.x + gridWidth / 2 - 5 + gridSize / 2, // Adjusted for marker size and grid alignment
                 transform: 'translate(-50%, -50%)', // Center the marker
                 backgroundColor: 'blue',
                 width: '10px',
                 height: '10px',
                 borderRadius: '50%',
               }}
-            >
-              <span style={{ color: 'white', fontSize: '10px' }}>{item.name}</span>
-            </Box>
+            />
           ))}
         </Paper>
       </Box>
