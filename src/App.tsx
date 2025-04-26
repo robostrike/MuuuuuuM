@@ -13,6 +13,7 @@ import FreeLocale from './pages/FreeLocale';
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebaseConfig';
+import ContainedPage from './pages/containedPage';
 
 function App() {
   type User = {
@@ -70,6 +71,7 @@ function App() {
             <Route path="/db-test" element={<DatabaseTest />} />
             <Route path="/grid" element={<FreeGrid />} />
             <Route path="/locale" element={<FreeLocale />} />
+            <Route path="/contain" element={<ContainedPage />} />
             
             
             {/* Add other routes as needed */}
