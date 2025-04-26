@@ -155,6 +155,21 @@ const MarkerGrid: React.FC<MarkerGridProps> = ({ onPlaceMarker, markerPosition, 
               }}
             />
           ))}
+
+          {/* Example usage of mousePosition */}
+          {mousePosition && (
+            <Box
+              sx={{
+                position: 'absolute',
+                top: mousePosition.y + gridHeight / 2,
+                left: mousePosition.x + gridWidth / 2,
+                width: '10px',
+                height: '10px',
+                backgroundColor: 'green',
+                borderRadius: '50%',
+              }}
+            />
+          )}
         </Paper>
       </Box>
     </Box>
