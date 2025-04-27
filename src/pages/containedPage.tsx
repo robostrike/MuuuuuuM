@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Stage, Layer, Rect, Text, Line, Circle } from 'react-konva';
 import { KonvaEventObject } from 'konva/lib/Node';
 import { Button } from '@mui/material';
@@ -29,6 +29,23 @@ const ContainedPage = () => {
       y: 40, // Initial position in the staging area
     }))
   );
+
+  const [scale, setScale] = useState(1);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const screenWidth = window.innerWidth;
+      if (screenWidth < 768) {
+        setScale(screenWidth / 768); // Scale down for mobile devices
+      } else {
+        setScale(1); // Default scale for desktop
+      }
+    };
+
+    handleResize(); // Set initial scale
+    window.addEventListener('resize', handleResize); // Update scale on window resize
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleDragEnd = (e: KonvaEventObject<DragEvent>, id: number) => {
     const { x, y } = e.target.position();
@@ -76,7 +93,12 @@ const ContainedPage = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <Stage width={stageWidth} height={stageHeight}>
+      <Stage
+        width={stageWidth}
+        height={stageHeight}
+        scaleX={scale} // Apply scaling
+        scaleY={scale} // Apply scaling
+      >
         <Layer>
           {/* Render grid */}
           {[...Array(gridWidth)].map((_, col) =>
