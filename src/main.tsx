@@ -3,7 +3,8 @@ import { createRoot } from 'react-dom/client'
 import './style.css'
 import App from './App.tsx'
 import { auth } from './firebaseConfig';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import { useState, useEffect } from 'react';
 
 function handleGoogleLogin() {
   const provider = new GoogleAuthProvider();
@@ -18,11 +19,40 @@ function handleGoogleLogin() {
     });
 }
 
+function handleSignOut() {
+  signOut(auth)
+    .then(() => {
+      console.log('User signed out successfully.');
+    })
+    .catch((error) => {
+      console.error('Error during sign out:', error);
+    });
+}
+
 function AppWithGoogleLogin() {
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUserEmail(user.email); // Set user email if signed in
+      } else {
+        setUserEmail(null); // Clear user email if signed out
+      }
+    });
+    return () => unsubscribe(); // Cleanup listener on unmount
+  }, []);
+
   return (
     <>
       <App />
-      <button onClick={handleGoogleLogin}>Login with Google</button>
+      {userEmail ? (
+        <>
+          <button onClick={handleSignOut}>Sign Out</button>
+        </>
+      ) : (
+        <button onClick={handleGoogleLogin}>Login with Google</button>
+      )}
     </>
   );
 }

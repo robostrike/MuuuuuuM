@@ -31,6 +31,7 @@ const ContainedPage = () => {
   );
 
   const [scale, setScale] = useState(1);
+  const [hoveredItemId, setHoveredItemId] = useState<number | null>(null); // Track hovered item ID
 
   useEffect(() => {
     const handleResize = () => {
@@ -56,7 +57,7 @@ const ContainedPage = () => {
 
     const isWithinGrid =
       adjustedX >= -stageWidth / 2 &&
-      adjustedX <= stageWidth / 2 - 40 &&
+      adjustedX <= stageWidth / 2 - gridSize + 20 && // Adjusted for rightmost column
       adjustedY >= -stageHeight / 2 + 100 - gridSize &&
       adjustedY <= stageHeight / 2 - 40;
 
@@ -92,65 +93,129 @@ const ContainedPage = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <Stage
-        width={stageWidth}
-        height={stageHeight}
-        scaleX={scale} // Apply scaling
-        scaleY={scale} // Apply scaling
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center', // Center horizontally
+        width: '100%', // Ensure full width for centering
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center', // Center the Stage horizontally
+          width: '100%',
+          overflow: 'hidden', // Prevent overflow on small screens
+        }}
       >
-        <Layer>
-          {/* Render grid */}
-          {[...Array(gridWidth)].map((_, col) =>
-            [...Array(gridHeight)].map((_, row) => (
-              <Rect
-                key={`${col}-${row}`}
-                x={col * gridSize}
-                y={row * gridSize + 100} // Offset grid below staging area
-                width={gridSize}
-                height={gridSize}
-                stroke="gray"
-                strokeWidth={0.5}
-              />
-            ))
-          )}
+        <Stage
+          width={stageWidth}
+          height={stageHeight}
+          scaleX={scale} // Apply scaling
+          scaleY={scale} // Apply scaling
+        >
+          <Layer>
+            {/* Render grid */}
+            {[...Array(gridWidth)].map((_, col) =>
+              [...Array(gridHeight)].map((_, row) => (
+                <Rect
+                  key={`${col}-${row}`}
+                  x={col * gridSize}
+                  y={row * gridSize + 100} // Offset grid below staging area
+                  width={gridSize}
+                  height={gridSize}
+                  stroke="gray"
+                  strokeWidth={0.5}
+                />
+              ))
+            )}
 
-          {/* Add middle lines */}
-          <Line
-            points={[0, stageHeight / 2 + gridSize, stageWidth, stageHeight / 2 + gridSize]}
-            stroke="black"
-            strokeWidth={1}
-          />
-          <Line
-            points={[stageWidth / 2, 100, stageWidth / 2, stageHeight]}
-            stroke="black"
-            strokeWidth={1}
-          />
+            {/* Add middle lines */}
+            <Line
+              points={[0, stageHeight / 2 + gridSize, stageWidth, stageHeight / 2 + gridSize]}
+              stroke="black"
+              strokeWidth={1}
+            />
+            <Line
+              points={[stageWidth / 2, 100, stageWidth / 2, stageHeight]}
+              stroke="black"
+              strokeWidth={1}
+            />
 
-          {/* Render draggable items */}
-          {items.map((item, index) => (
-            <React.Fragment key={item.id}>
-              <Circle
-                x={positions[index].x}
-                y={positions[index].y}
-                radius={20} // Radius of the dot
-                fill={item.color}
-                draggable
-                onDragEnd={(e) => handleDragEnd(e, item.id)}
-              />
-              <Text
-                x={positions[index].x - 20} // Center text horizontally (width of text is approx. 40)
-                y={positions[index].y - 40} // Position text above the dot
-                text={item.label}
-                fontSize={12}
-                fill="black"
-                width={40} // Set width for centering
-                align="center" // Align text to center
-              />
-            </React.Fragment>
-          ))}
-        </Layer>
-      </Stage>
+            {/* Render draggable items */}
+            {items.map((item, index) => (
+              <React.Fragment key={item.id}>
+                <Circle
+                  x={positions[index].x}
+                  y={positions[index].y}
+                  radius={20} // Default radius
+                  fill={item.color}
+                  draggable
+                  onDragEnd={(e) => handleDragEnd(e, item.id)}
+                  onMouseEnter={() => setHoveredItemId(item.id)} // Set hovered item ID on hover
+                  onMouseLeave={() => setHoveredItemId(null)} // Reset hovered item ID when hover ends
+                  onDragMove={(e) => {
+                    if (hoveredItemId === item.id) {
+                      const { x, y } = e.target.position();
+
+                      // Adjust coordinates to use the new origin
+                      const adjustedX = x - stageWidth / 2;
+                      const adjustedY = y - (stageHeight / 2 + gridSize);
+
+                      const isWithinGrid =
+                        adjustedX >= -stageWidth / 2 &&
+                        adjustedX <= stageWidth / 2 - gridSize + 20 && // Adjusted for rightmost column
+                        adjustedY >= -stageHeight / 2 + 100 - gridSize &&
+                        adjustedY <= stageHeight / 2 - 40;
+
+                      setPositions((prev) =>
+                        prev.map((pos) =>
+                          pos.id === item.id
+                            ? isWithinGrid
+                              ? { ...pos, x, y } // Update position if within grid
+                              : { ...pos } // Keep position unchanged if outside grid
+                            : pos
+                        )
+                      );
+
+                      // Reset position visually if outside grid
+                      if (!isWithinGrid) {
+                        const resetPosition = positions.find((pos) => pos.id === item.id) || { x: 0, y: 0 };
+                        e.target.position({ x: resetPosition.x, y: resetPosition.y });
+                      }
+                    }
+                  }}
+                />
+                <Rect
+                  id={`rect-${item.id}`}
+                  x={positions[index].x - 30} // Center rectangle horizontally
+                  y={positions[index].y - 60} // Position rectangle above the circle
+                  width={60}
+                  height={25}
+                  fill="white"
+                  stroke="black"
+                  strokeWidth={1}
+                  cornerRadius={12} // Rounded corners
+                  visible={hoveredItemId === item.id} // Visible only for the hovered item
+                />
+                <Text
+                  id={`text-${item.id}`}
+                  x={positions[index].x - 30} // Center text horizontally
+                  y={positions[index].y - 52} // Center text vertically within the rectangle
+                  text={item.label}
+                  fontSize={12}
+                  fill="black"
+                  width={60} // Set width for centering
+                  align="center" // Align text to center
+                  visible={hoveredItemId === item.id} // Visible only for the hovered item
+                />
+              </React.Fragment>
+            ))}
+          </Layer>
+        </Stage>
+      </div>
 
       {/* Tracker display */}
       <div style={{ marginTop: 20, display: 'flex', justifyContent:  'center', alignItems: 'center', flexDirection: 'column' }}>
