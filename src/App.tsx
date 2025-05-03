@@ -60,7 +60,8 @@ function App() {
                 )}
                 <Button color="inherit" component={Link} to="/">Home</Button>
                 <Button color="inherit" component={Link} to="/game">Game</Button>
-                <Button color="inherit" component={Link} to="/db-test">DB Test</Button>
+                <Button color="inherit" component={Link} to="/db-test">DB</Button>
+                <Button color="inherit" component={Link} to="/contain">Contain</Button>
               </Toolbar>
             </AppBar>
           </Box>

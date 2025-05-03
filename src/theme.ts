@@ -22,6 +22,15 @@ const theme = createTheme({
     },
   },
   spacing: 8,
+  breakpoints: {
+    values: {
+      xs: 0, // Extra small devices
+      sm: 600, // Small devices
+      md: 960, // Medium devices (regular size)
+      lg: 1280, // Large devices
+      xl: 1920, // Extra large devices
+    },
+  },
 });
 
 export default theme;

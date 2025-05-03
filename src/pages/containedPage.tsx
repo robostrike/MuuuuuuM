@@ -2,14 +2,61 @@ import React, { useState, useEffect } from 'react';
 import { Stage, Layer, Rect, Text, Line, Circle } from 'react-konva';
 import { KonvaEventObject } from 'konva/lib/Node';
 import { Button } from '@mui/material';
+import { useTheme, useMediaQuery } from '@mui/material';
 
 const ContainedPage = () => {
-  const gridSize = 50; // Size of each grid cell
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm')); // Check if screen size is small
+
   const gridWidth = 10; // Number of columns
   const gridHeight = 10; // Number of rows
   const listDistance = 60;
-  const stageWidth = gridWidth * gridSize;
-  const stageHeight = gridHeight * gridSize + 100; // Extra space for staging
+
+  const calculateGridDimensions = () => {
+    const maxStageWidth = window.innerWidth; // Get the screen width
+    
+    if (!isSmallScreen) {
+      // Static grid size and layout for larger screens
+      const gridSize = 50; // Fixed grid size
+      const stageWidth = gridSize * gridWidth;
+      const stageHeight = stageWidth + 100;
+      const offsetX = 0;
+      return { gridSize, stageWidth, stageHeight, offsetX };
+    }
+
+    // Dynamic grid size and layout for smaller screens
+    const gridSize = Math.floor(maxStageWidth / gridWidth);
+    const stageWidth = gridSize * gridWidth;
+    const stageHeight = stageWidth + 100;
+    const offsetX = (maxStageWidth - stageWidth) / 2;
+    return { gridSize, stageWidth, stageHeight, offsetX };
+  };
+
+  const { gridSize, stageWidth, stageHeight, offsetX } = calculateGridDimensions();
+
+  useEffect(() => {
+    // Log initial stage and screen dimensions
+    console.log('Initial Screen Dimensions:', {
+      innerWidth: window.innerWidth,
+      innerHeight: window.innerHeight,
+    });
+    console.log('Initial Stage Dimensions:', {
+      stageWidth,
+      stageHeight,
+      gridSize,
+      offsetX,
+    });
+
+    const handleResize = () => {
+      const { gridSize, stageWidth, stageHeight, offsetX } = calculateGridDimensions();
+      console.log('New Grid Size:', gridSize);
+      console.log('Stage Dimensions:', { width: stageWidth, height: stageHeight });
+      console.log('Offset X:', offsetX);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isSmallScreen]);
 
   // List of items to populate as draggable objects
   const items = [
@@ -25,28 +72,12 @@ const ContainedPage = () => {
   const [positions, setPositions] = useState(
     items.map((item, index) => ({
       id: item.id,
-      x: stageWidth / 2 - ((listLength-1) * listDistance) / 2 + index * listDistance, // Center items horizontally
+      x: stageWidth / 2 - ((listLength - 1) * listDistance) / 2 + index * listDistance, // Center items horizontally
       y: 40, // Initial position in the staging area
     }))
   );
 
-  const [scale, setScale] = useState(1);
-  const [hoveredItemId, setHoveredItemId] = useState<number | null>(null); // Track hovered item ID
-
-  useEffect(() => {
-    const handleResize = () => {
-      const screenWidth = window.innerWidth;
-      if (screenWidth < 768) {
-        setScale(screenWidth / 768); // Scale down for mobile devices
-      } else {
-        setScale(1); // Default scale for desktop
-      }
-    };
-
-    handleResize(); // Set initial scale
-    window.addEventListener('resize', handleResize); // Update scale on window resize
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  const scale = isSmallScreen ? 0.8 : 1; // Scale down for small screens
 
   const handleDragEnd = (e: KonvaEventObject<DragEvent>, id: number) => {
     const { x, y } = e.target.position();
@@ -57,24 +88,22 @@ const ContainedPage = () => {
 
     const isWithinGrid =
       adjustedX >= -stageWidth / 2 &&
-      adjustedX <= stageWidth / 2 - gridSize + 20 && // Adjusted for rightmost column
+      adjustedX <= stageWidth / 2 - gridSize + 20 &&
       adjustedY >= -stageHeight / 2 + 100 - gridSize &&
       adjustedY <= stageHeight / 2 - 40;
 
-    // Dynamically get the initial starting position from the state and include 'id'
     const resetPosition = positions.find((pos) => pos.id === id) || { id, x: 0, y: 0 };
 
     setPositions((prev) =>
       prev.map((pos) =>
         pos.id === id
           ? isWithinGrid
-            ? { ...pos, x, y } // Update position if within grid
-            : resetPosition // Reset to original position if outside grid
+            ? { ...pos, x, y }
+            : resetPosition
           : pos
       )
     );
 
-    // Ensure the Konva node is reset to the correct position visually
     e.target.position(isWithinGrid ? { x, y } : { x: resetPosition.x, y: resetPosition.y });
   };
 
@@ -86,8 +115,8 @@ const ContainedPage = () => {
     setPositions(
       items.map((item, index) => ({
         id: item.id,
-        x: stageWidth / 2 - ((listLength - 1) * listDistance) / 2 + index * listDistance, // Reset to initial x position
-        y: 40, // Reset to initial y position
+        x: stageWidth / 2 - ((listLength - 1) * listDistance) / 2 + index * listDistance,
+        y: 40,
       }))
     );
   };
@@ -98,127 +127,104 @@ const ContainedPage = () => {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center', // Center horizontally
-        width: '100%', // Ensure full width for centering
+        justifyContent: 'center',
+        width: '100vw',
+        height: '100vh',
+        overflow: 'hidden',
+        position: 'relative',
       }}
     >
-      <div
+      <Stage
+        width={stageWidth}
+        height={stageHeight}
+        scaleX={scale}
+        scaleY={scale}
         style={{
-          display: 'flex',
-          justifyContent: 'center', // Center the Stage horizontally
-          width: '100%',
-          overflow: 'hidden', // Prevent overflow on small screens
+          display: 'block',
         }}
       >
-        <Stage
-          width={stageWidth}
-          height={stageHeight}
-          scaleX={scale} // Apply scaling
-          scaleY={scale} // Apply scaling
-        >
-          <Layer>
-            {/* Render grid */}
-            {[...Array(gridWidth)].map((_, col) =>
-              [...Array(gridHeight)].map((_, row) => (
-                <Rect
-                  key={`${col}-${row}`}
-                  x={col * gridSize}
-                  y={row * gridSize + 100} // Offset grid below staging area
-                  width={gridSize}
-                  height={gridSize}
-                  stroke="gray"
-                  strokeWidth={0.5}
-                />
-              ))
-            )}
+        <Layer>
+          {/* Render grid */}
+          {[...Array(gridWidth)].map((_, col) =>
+            [...Array(gridHeight)].map((_, row) => (
+              <Rect
+                key={`${col}-${row}`}
+                x={col * gridSize + offsetX} // Apply horizontal offset
+                y={row * gridSize + 100}
+                width={gridSize}
+                height={gridSize}
+                stroke="gray"
+                strokeWidth={0.5}
+              />
+            ))
+          )}
 
-            {/* Add middle lines */}
-            <Line
-              points={[0, stageHeight / 2 + gridSize, stageWidth, stageHeight / 2 + gridSize]}
-              stroke="black"
-              strokeWidth={1}
-            />
-            <Line
-              points={[stageWidth / 2, 100, stageWidth / 2, stageHeight]}
-              stroke="black"
-              strokeWidth={1}
-            />
+          {/* Add middle lines */}
+          <Line
+            points={[offsetX, stageHeight / 2 + gridSize, stageWidth + offsetX, stageHeight / 2 + gridSize]}
+            stroke="black"
+            strokeWidth={1}
+          />
+          <Line
+            points={[stageWidth / 2 + offsetX, 100, stageWidth / 2 + offsetX, stageHeight]}
+            stroke="black"
+            strokeWidth={1}
+          />
 
-            {/* Render draggable items */}
-            {items.map((item, index) => (
-              <React.Fragment key={item.id}>
-                <Circle
-                  x={positions[index].x}
-                  y={positions[index].y}
-                  radius={20} // Default radius
-                  fill={item.color}
-                  draggable
-                  onDragEnd={(e) => handleDragEnd(e, item.id)}
-                  onMouseEnter={() => setHoveredItemId(item.id)} // Set hovered item ID on hover
-                  onMouseLeave={() => setHoveredItemId(null)} // Reset hovered item ID when hover ends
-                  onDragMove={(e) => {
-                    if (hoveredItemId === item.id) {
-                      const { x, y } = e.target.position();
+          {/* Add labels */}
+          <Text x={offsetX + 10} y={stageHeight / 2 + gridSize - 10} text="no" fontSize={16} fill="black" />
+          <Text
+            x={stageWidth + offsetX - 40}
+            y={stageHeight / 2 + gridSize - 10}
+            text="yes"
+            fontSize={16}
+            fill="black"
+          />
+          <Text
+            x={stageWidth / 2 + offsetX - 40}
+            y={stageHeight - 30}
+            text="puzzling"
+            fontSize={16}
+            fill="black"
+          />
+          <Text x={stageWidth / 2 + offsetX - 50} y={110} text="confident" fontSize={16} fill="black" />
 
-                      // Adjust coordinates to use the new origin
-                      const adjustedX = x - stageWidth / 2;
-                      const adjustedY = y - (stageHeight / 2 + gridSize);
-
-                      const isWithinGrid =
-                        adjustedX >= -stageWidth / 2 &&
-                        adjustedX <= stageWidth / 2 - gridSize + 20 && // Adjusted for rightmost column
-                        adjustedY >= -stageHeight / 2 + 100 - gridSize &&
-                        adjustedY <= stageHeight / 2 - 40;
-
-                      setPositions((prev) =>
-                        prev.map((pos) =>
-                          pos.id === item.id
-                            ? isWithinGrid
-                              ? { ...pos, x, y } // Update position if within grid
-                              : { ...pos } // Keep position unchanged if outside grid
-                            : pos
-                        )
-                      );
-
-                      // Reset position visually if outside grid
-                      if (!isWithinGrid) {
-                        const resetPosition = positions.find((pos) => pos.id === item.id) || { x: 0, y: 0 };
-                        e.target.position({ x: resetPosition.x, y: resetPosition.y });
-                      }
-                    }
-                  }}
-                />
-                <Rect
-                  id={`rect-${item.id}`}
-                  x={positions[index].x - 30} // Center rectangle horizontally
-                  y={positions[index].y - 60} // Position rectangle above the circle
-                  width={60}
-                  height={25}
-                  fill="white"
-                  stroke="black"
-                  strokeWidth={1}
-                  cornerRadius={12} // Rounded corners
-                  visible={hoveredItemId === item.id} // Visible only for the hovered item
-                />
-                <Text
-                  id={`text-${item.id}`}
-                  x={positions[index].x - 30} // Center text horizontally
-                  y={positions[index].y - 52} // Center text vertically within the rectangle
-                  text={item.label}
-                  fontSize={12}
-                  fill="black"
-                  width={60} // Set width for centering
-                  align="center" // Align text to center
-                  visible={hoveredItemId === item.id} // Visible only for the hovered item
-                />
-              </React.Fragment>
-            ))}
-          </Layer>
-        </Stage>
-      </div>
+          {/* Render draggable items */}
+          {items.map((item, index) => (
+            <React.Fragment key={item.id}>
+              <Circle
+                x={positions[index].x + offsetX} // Apply horizontal offset
+                y={positions[index].y}
+                radius={20}
+                fill={item.color}
+                draggable
+                onDragEnd={(e) => handleDragEnd(e, item.id)}
+              />
+              <Text
+                id={`text-${item.id}`}
+                x={positions[index].x + offsetX - 30}
+                y={positions[index].y + 30}
+                text={item.label}
+                fontSize={12}
+                fill="black"
+                width={60}
+                align="center"
+              />
+            </React.Fragment>
+          ))}
+        </Layer>
+      </Stage>
 
       {/* Tracker display */}
-      <div style={{ marginTop: 20, display: 'flex', justifyContent:  'center', alignItems: 'center', flexDirection: 'column' }}>
+      <div
+        style={{
+          marginTop: 20,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
         {items.map((item, index) => (
           <div key={item.id} style={{ marginBottom: 5 }}>
             {item.label}: (
@@ -229,7 +235,15 @@ const ContainedPage = () => {
       </div>
 
       {/* Buttons */}
-      <div style={{ marginTop: 20, display: 'flex', gap: '10px' }}>
+      <div
+        style={{
+          marginTop: 20,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '10px',
+          alignItems: 'center',
+        }}
+      >
         <Button variant="contained" color="primary" onClick={handleSave}>
           Save
         </Button>
