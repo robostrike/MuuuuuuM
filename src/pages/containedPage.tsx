@@ -10,14 +10,14 @@ const ContainedPage = () => {
 
   const gridWidth = 10; // Number of columns
   const gridHeight = 10; // Number of rows
-  const listDistance = 60;
+  const listDistance = 60; // Distance between items in the list
 
   const calculateGridDimensions = () => {
     const maxStageWidth = window.innerWidth; // Get the screen width
     
     if (!isSmallScreen) {
       // Static grid size and layout for larger screens
-      const gridSize = 50; // Fixed grid size
+      const gridSize = 50; // Apply offset
       const stageWidth = gridSize * gridWidth;
       const stageHeight = stageWidth + 100;
       const offsetX = 0;
@@ -25,10 +25,10 @@ const ContainedPage = () => {
     }
 
     // Dynamic grid size and layout for smaller screens
-    const gridSize = Math.floor(maxStageWidth / gridWidth);
+    const gridSize = Math.floor(maxStageWidth / gridWidth); // Apply offset
     const stageWidth = gridSize * gridWidth;
     const stageHeight = stageWidth + 100;
-    const offsetX = (maxStageWidth - stageWidth) / 2;
+    const offsetX = (maxStageWidth - stageWidth) / 2 ;
     return { gridSize, stageWidth, stageHeight, offsetX };
   };
 
@@ -72,18 +72,16 @@ const ContainedPage = () => {
   const [positions, setPositions] = useState(
     items.map((item, index) => ({
       id: item.id,
-      x: stageWidth / 2 - ((listLength - 1) * listDistance) / 2 + index * listDistance, // Center items horizontally
+      x: stageWidth / 2 - ((listLength - 1) * listDistance) / 2 + index * listDistance - offsetX, // Include offsetX
       y: 40, // Initial position in the staging area
     }))
   );
-
-  const scale = isSmallScreen ? 0.8 : 1; // Scale down for small screens
 
   const handleDragEnd = (e: KonvaEventObject<DragEvent>, id: number) => {
     const { x, y } = e.target.position();
 
     // Adjust coordinates to use the new origin
-    const adjustedX = x - stageWidth / 2;
+    const adjustedX = x - stageWidth / 2 - offsetX; // Include offsetX
     const adjustedY = y - (stageHeight / 2 + gridSize);
 
     const isWithinGrid =
@@ -137,8 +135,6 @@ const ContainedPage = () => {
       <Stage
         width={stageWidth}
         height={stageHeight}
-        scaleX={scale}
-        scaleY={scale}
         style={{
           display: 'block',
         }}
@@ -159,26 +155,39 @@ const ContainedPage = () => {
             ))
           )}
 
-          {/* Add middle lines */}
+          {/* Add horizontal line */}
           <Line
-            points={[offsetX, stageHeight / 2 + gridSize, stageWidth + offsetX, stageHeight / 2 + gridSize]}
+            points={[offsetX, 100 + gridSize*5, stageWidth + offsetX, 100 + gridSize*5]}
             stroke="black"
-            strokeWidth={1}
+            strokeWidth={2}
           />
+          {/* Add vertical line */}
           <Line
             points={[stageWidth / 2 + offsetX, 100, stageWidth / 2 + offsetX, stageHeight]}
             stroke="black"
-            strokeWidth={1}
+            strokeWidth={2}
           />
 
           {/* Add labels */}
-          <Text x={offsetX + 10} y={stageHeight / 2 + gridSize - 10} text="no" fontSize={16} fill="black" />
           <Text
-            x={stageWidth + offsetX - 40}
-            y={stageHeight / 2 + gridSize - 10}
+            x={offsetX + 20} // Position to the left of the horizontal line
+            y={100 + gridSize * 5} // Center vertically on the horizontal line
+            align="center"
+            text="no"
+            fontSize={16}
+            fill="black"
+            rotation={-90} // Rotate 90 degrees counterclockwise
+            
+          />
+          <Text
+            x={stageWidth + offsetX - 20} // Position to the right of the horizontal line
+            y={100 + gridSize * 5} // Center vertically on the horizontal line
+            align="center"
             text="yes"
             fontSize={16}
             fill="black"
+            rotation={90} // Rotate 90 degrees clockwise
+            
           />
           <Text
             x={stageWidth / 2 + offsetX - 40}
@@ -186,8 +195,16 @@ const ContainedPage = () => {
             text="puzzling"
             fontSize={16}
             fill="black"
+            align="center"
           />
-          <Text x={stageWidth / 2 + offsetX - 50} y={110} text="confident" fontSize={16} fill="black" />
+          <Text
+            x={stageWidth / 2 + offsetX - 50}
+            y={110}
+            text="confident"
+            fontSize={16}
+            fill="black"
+            align="center"
+          />
 
           {/* Render draggable items */}
           {items.map((item, index) => (
