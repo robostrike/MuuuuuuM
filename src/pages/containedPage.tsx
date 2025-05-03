@@ -11,6 +11,7 @@ const ContainedPage = () => {
   const gridWidth = 10; // Number of columns
   const gridHeight = 10; // Number of rows
   const listDistance = 60; // Distance between items in the list
+  const itemHeight = 100; // Height of the row of items on the list
 
   const calculateGridDimensions = () => {
     const maxStageWidth = window.innerWidth; // Get the screen width
@@ -19,33 +20,22 @@ const ContainedPage = () => {
       // Static grid size and layout for larger screens
       const gridSize = 50; // Apply offset
       const stageWidth = gridSize * gridWidth;
-      const stageHeight = stageWidth + 100;
+      const stageHeight = stageWidth + itemHeight;
       const offsetX = 0;
       return { gridSize, stageWidth, stageHeight, offsetX };
     }
 
     // Dynamic grid size and layout for smaller screens
-    const gridSize = Math.floor(maxStageWidth / gridWidth); // Apply offset
+    const gridSize = Math.floor((maxStageWidth) / gridWidth); // Reduce gridSize slightly to fit within the viewport
     const stageWidth = gridSize * gridWidth;
-    const stageHeight = stageWidth + 100;
-    const offsetX = (maxStageWidth - stageWidth) / 2 ;
+    const stageHeight = stageWidth + itemHeight;
+    const offsetX = (maxStageWidth - stageWidth) / 2 ; // Center the grid horizontally
     return { gridSize, stageWidth, stageHeight, offsetX };
   };
 
   const { gridSize, stageWidth, stageHeight, offsetX } = calculateGridDimensions();
 
   useEffect(() => {
-    // Log initial stage and screen dimensions
-    console.log('Initial Screen Dimensions:', {
-      innerWidth: window.innerWidth,
-      innerHeight: window.innerHeight,
-    });
-    console.log('Initial Stage Dimensions:', {
-      stageWidth,
-      stageHeight,
-      gridSize,
-      offsetX,
-    });
 
     const handleResize = () => {
       const { gridSize, stageWidth, stageHeight, offsetX } = calculateGridDimensions();
@@ -87,7 +77,7 @@ const ContainedPage = () => {
     const isWithinGrid =
       adjustedX >= -stageWidth / 2 &&
       adjustedX <= stageWidth / 2 - gridSize + 20 &&
-      adjustedY >= -stageHeight / 2 + 100 - gridSize &&
+      adjustedY >= -stageHeight / 2 + itemHeight - gridSize &&
       adjustedY <= stageHeight / 2 - 40;
 
     const resetPosition = positions.find((pos) => pos.id === id) || { id, x: 0, y: 0 };
@@ -137,6 +127,7 @@ const ContainedPage = () => {
         height={stageHeight}
         style={{
           display: 'block',
+          
         }}
       >
         <Layer>
@@ -146,10 +137,15 @@ const ContainedPage = () => {
               <Rect
                 key={`${col}-${row}`}
                 x={col * gridSize + offsetX} // Apply horizontal offset
-                y={row * gridSize + 100}
+                y={row * gridSize + itemHeight}
                 width={gridSize}
                 height={gridSize}
-                stroke="gray"
+                fill= "white"
+                stroke={
+                  col === 0 || row === 0 || col === gridWidth - 1 || row === gridHeight - 1
+                    ? 'white' // Make the first/last row and column transparent
+                    : 'grey' // Default grid color
+                }
                 strokeWidth={0.5}
               />
             ))
@@ -157,13 +153,13 @@ const ContainedPage = () => {
 
           {/* Add horizontal line */}
           <Line
-            points={[offsetX, 100 + gridSize*5, stageWidth + offsetX, 100 + gridSize*5]}
+            points={[offsetX + gridSize, itemHeight + gridSize*5, stageWidth + offsetX - + gridSize, itemHeight + gridSize*5]}
             stroke="black"
             strokeWidth={2}
           />
           {/* Add vertical line */}
           <Line
-            points={[stageWidth / 2 + offsetX, 100, stageWidth / 2 + offsetX, stageHeight]}
+            points={[stageWidth / 2 + offsetX, itemHeight + gridSize, stageWidth / 2 + offsetX, stageHeight - + gridSize]}
             stroke="black"
             strokeWidth={2}
           />
@@ -237,16 +233,19 @@ const ContainedPage = () => {
         style={{
           marginTop: 20,
           display: 'flex',
-          flexDirection: 'column',
+          flexDirection: 'row', // Change to row
           justifyContent: 'center',
           alignItems: 'center',
+          gap: '15px', // Add spacing between items
         }}
       >
         {items.map((item, index) => (
-          <div key={item.id} style={{ marginBottom: 5 }}>
-            {item.label}: (
-            {Math.round(positions[index].x - stageWidth / 2)},{" "}
-            {Math.round(positions[index].y - (stageHeight / 2 + gridSize))})
+          <div key={item.id} style={{ textAlign: 'center' }}>
+            <div>Item {item.id}</div> {/* Display item number */}
+            <div>
+              ({Math.round(positions[index].x - stageWidth / 2)},{" "}
+              {Math.round(positions[index].y - (stageHeight / 2 + gridSize))})
+            </div>
           </div>
         ))}
       </div>
@@ -256,9 +255,10 @@ const ContainedPage = () => {
         style={{
           marginTop: 20,
           display: 'flex',
-          flexDirection: 'column',
-          gap: '10px',
+          flexDirection: 'row', // Change to row
+          gap: '10px', // Add spacing between buttons
           alignItems: 'center',
+          justifyContent: 'center', // Center the buttons
         }}
       >
         <Button variant="contained" color="primary" onClick={handleSave}>

@@ -1,17 +1,52 @@
-import React, { useState } from 'react';
-import { AppBar, Toolbar, Typography, Box, Drawer, List, ListItem, ListItemText, IconButton } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { AppBar, Toolbar, Typography, Box, Drawer, List, ListItem, ListItemText, IconButton, Button } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Link } from 'react-router-dom';
+import { auth } from '../firebaseConfig';
+import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 
-type HeaderProps = {
-  loggedInUser: { email: string; uid: string } | null;
-};
+type HeaderProps = {};
 
-const Header: React.FC<HeaderProps> = ({ loggedInUser }) => {
+const Header: React.FC<HeaderProps> = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [loggedInUser, setLoggedInUser] = useState<{ email: string; uid: string } | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setLoggedInUser({ email: user.email!, uid: user.uid });
+      } else {
+        setLoggedInUser(null);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   const toggleDrawer = (open: boolean) => () => {
     setDrawerOpen(open);
+  };
+
+  const handleGoogleLogin = () => {
+    const provider = new GoogleAuthProvider();
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        const user = result.user;
+        console.log('User ID:', user.uid);
+        console.log('User Name:', user.displayName);
+      })
+      .catch((error) => {
+        console.error('Error during login:', error);
+      });
+  };
+
+  const handleSignOut = () => {
+    signOut(auth)
+      .then(() => {
+        console.log('User signed out successfully.');
+      })
+      .catch((error) => {
+        console.error('Error during sign out:', error);
+      });
   };
 
   return (
@@ -24,7 +59,21 @@ const Header: React.FC<HeaderProps> = ({ loggedInUser }) => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             MuuuuuuM App
           </Typography>
-          
+          {loggedInUser ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Typography variant="body1">
+                Welcome, {loggedInUser.email.split('@')[0]}!
+              </Typography>
+              <Typography variant="body2">UID: {loggedInUser.uid}</Typography>
+              <Button color="inherit" onClick={handleSignOut}>
+                Sign Out
+              </Button>
+            </Box>
+          ) : (
+            <Button color="inherit" onClick={handleGoogleLogin}>
+              Login with Google
+            </Button>
+          )}
         </Toolbar>
       </AppBar>
       <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
@@ -46,14 +95,6 @@ const Header: React.FC<HeaderProps> = ({ loggedInUser }) => {
               <ListItemText primary="Grid" />
             </ListItem>
           </List>
-          {loggedInUser && (
-            <Box sx={{ textAlign: 'center', flexGrow: 1 }}>
-              <Typography variant="body1">
-                Welcome, {loggedInUser.email.split('@')[0]}!
-              </Typography>
-              <Typography variant="body2">UID: {loggedInUser.uid}</Typography>
-            </Box>
-          )}
         </Box>
       </Drawer>
     </>
