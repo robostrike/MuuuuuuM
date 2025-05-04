@@ -3,6 +3,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import Theme from './theme';
 import ContainedPage from './pages/containedPage';
 import Header from './components/Header';
+import SinglePage from './pages/SinglePage';
 
 function App() {
 
@@ -12,7 +13,7 @@ function App() {
         <Header />
           <Routes>
             <Route path="/" element={<ContainedPage />} />
-            {/* Add other routes as needed */}
+            <Route path="/single" element={<SinglePage />} />
           </Routes>
       </BrowserRouter>
     </ThemeProvider>

@@ -9,12 +9,12 @@ type HeaderProps = {};
 
 const Header: React.FC<HeaderProps> = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [loggedInUser, setLoggedInUser] = useState<{ email: string; uid: string } | null>(null);
+  const [loggedInUser, setLoggedInUser] = useState<{ displayName: string | null; uid: string } | null>(null);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        setLoggedInUser({ email: user.email!, uid: user.uid });
+        setLoggedInUser({ displayName: user.displayName, uid: user.uid });
       } else {
         setLoggedInUser(null);
       }
@@ -67,14 +67,16 @@ const Header: React.FC<HeaderProps> = () => {
             <ListItem component={Link} to="/">
               <ListItemText primary="Home" />
             </ListItem>
+            <ListItem component={Link} to="/single">
+              <ListItemText primary="Single" />
+            </ListItem>
           </List>
           <Box sx={{ p: 2 }}>
             {loggedInUser ? (
               <>
                 <Typography variant="body1">
-                  Welcome, {loggedInUser.email.split('@')[0]}!
+                  Welcome, {loggedInUser.displayName || 'User'}!
                 </Typography>
-                <Typography variant="body2">Email: {loggedInUser.email}</Typography>
                 <Typography variant="body2">UID: {loggedInUser.uid}</Typography>
                 <Button color="inherit" onClick={handleSignOut}>
                   Sign Out

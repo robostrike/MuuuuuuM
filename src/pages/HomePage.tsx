@@ -12,6 +12,7 @@ const ContainedPage = () => {
   const gridHeight = 10; // Number of rows
   const listDistance = 60; // Distance between items in the list
   const itemHeight = 100; // Height of the row of items on the list
+  const originGridSize = 50; // Original grid size for larger screens
 
   const calculateGridDimensions = () => {
     const maxStageWidth = window.innerWidth; // Get the screen width
@@ -59,39 +60,58 @@ const ContainedPage = () => {
 
   const listLength = items.length; // Get the size of the list
 
-  const [positions, setPositions] = useState(
-    items.map((item, index) => ({
+  // Define initial positions based on the items and grid dimensions
+  const getInitialPositions = () => {
+    return items.map((item, index) => ({
       id: item.id,
-      x: stageWidth / 2 - ((listLength - 1) * listDistance) / 2 + index * listDistance - offsetX, // Include offsetX
-      y: 40, // Initial position in the staging area
-    }))
+      x: stageWidth / 2 - ((listLength - 1) * listDistance) / 2 + index * listDistance,
+      y: 40,
+    }));
+  };
+
+  const initialPositions = getInitialPositions();
+
+  const [positions, setPositions] = useState(initialPositions);
+
+  const [itemDisplay, setItemDisplay] = useState(
+    items.map(() => ({ x: 0, y: 0 }))
   );
+
+  useEffect(() => {
+    const updatedDisplay = positions.map((pos) => {
+      // Calculate Cartesian coordinates relative to the origin of the grid
+      const originX = (pos.x - offsetX) * (originGridSize / gridSize);
+      const originY = (pos.y - itemHeight) * (originGridSize / gridSize);
+
+      console.log(`Item Position (Origin): x=${originX.toFixed(2)}, y=${originY.toFixed(2)}`);
+      return { x: originX, y: originY };
+    });
+
+    setItemDisplay(updatedDisplay);
+  }, [positions, offsetX, gridSize, originGridSize, itemHeight]);
 
   const handleDragEnd = (e: KonvaEventObject<DragEvent>, id: number) => {
     const { x, y } = e.target.position();
 
-    // Adjust coordinates to use the new origin
-    const adjustedX = x - stageWidth / 2 - offsetX; // Include offsetX
-    const adjustedY = y - (stageHeight / 2 + gridSize);
-
+    // Check if the item is within the grid boundaries
     const isWithinGrid =
-      adjustedX >= -stageWidth / 2 &&
-      adjustedX <= stageWidth / 2 - gridSize + 20 &&
-      adjustedY >= -stageHeight / 2 + itemHeight - gridSize &&
-      adjustedY <= stageHeight / 2 - 40;
+      x >= offsetX &&
+      x <= stageWidth + offsetX - gridSize &&
+      y >= itemHeight &&
+      y <= stageHeight - gridSize;
 
     const resetPosition = positions.find((pos) => pos.id === id) || { id, x: 0, y: 0 };
 
-    setPositions((prev) =>
-      prev.map((pos) =>
-        pos.id === id
-          ? isWithinGrid
-            ? { ...pos, x, y }
-            : resetPosition
-          : pos
-      )
+    const updatedPositions = positions.map((pos) =>
+      pos.id === id
+        ? isWithinGrid
+          ? { ...pos, x, y }
+          : resetPosition
+        : pos
     );
 
+    setPositions([...updatedPositions]); // Ensure a new array reference is created
+    console.log('Updated Positions After Drag (Origin):', updatedPositions); // Log immediately after state update
     e.target.position(isWithinGrid ? { x, y } : { x: resetPosition.x, y: resetPosition.y });
   };
 
@@ -100,13 +120,11 @@ const ContainedPage = () => {
   };
 
   const handleReset = () => {
-    setPositions(
-      items.map((item, index) => ({
-        id: item.id,
-        x: stageWidth / 2 - ((listLength - 1) * listDistance) / 2 + index * listDistance,
-        y: 40,
-      }))
-    );
+    setPositions(initialPositions); // Reset to initial positions
+    console.log('Reset Positions:');
+    initialPositions.forEach((pos) => {
+      console.log(`Item ${pos.id}: x=${pos.x.toFixed(2)}, y=${pos.y.toFixed(2)}`);
+    });
   };
 
   return (
@@ -206,7 +224,7 @@ const ContainedPage = () => {
           {items.map((item, index) => (
             <React.Fragment key={item.id}>
               <Circle
-                x={positions[index].x + offsetX} // Apply horizontal offset
+                x={positions[index].x} // Apply horizontal offset
                 y={positions[index].y}
                 radius={20}
                 fill={item.color}
@@ -233,18 +251,17 @@ const ContainedPage = () => {
         style={{
           marginTop: 20,
           display: 'flex',
-          flexDirection: 'row', // Change to row
+          flexDirection: 'row',
           justifyContent: 'center',
           alignItems: 'center',
-          gap: '15px', // Add spacing between items
+          gap: '15px',
         }}
       >
         {items.map((item, index) => (
           <div key={item.id} style={{ textAlign: 'center' }}>
-            <div>Item {item.id}</div> {/* Display item number */}
+            <div>Item {item.id}</div>
             <div>
-              ({Math.round(positions[index].x - stageWidth / 2)},{" "}
-              {Math.round(positions[index].y - (stageHeight / 2 + gridSize))})
+              ({Math.round(itemDisplay[index].x)}, {Math.round(itemDisplay[index].y)})
             </div>
           </div>
         ))}
