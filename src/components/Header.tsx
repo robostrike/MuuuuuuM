@@ -59,21 +59,6 @@ const Header: React.FC<HeaderProps> = () => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             MuuuuuuM App
           </Typography>
-          {loggedInUser ? (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Typography variant="body1">
-                Welcome, {loggedInUser.email.split('@')[0]}!
-              </Typography>
-              <Typography variant="body2">UID: {loggedInUser.uid}</Typography>
-              <Button color="inherit" onClick={handleSignOut}>
-                Sign Out
-              </Button>
-            </Box>
-          ) : (
-            <Button color="inherit" onClick={handleGoogleLogin}>
-              Login with Google
-            </Button>
-          )}
         </Toolbar>
       </AppBar>
       <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
@@ -82,19 +67,25 @@ const Header: React.FC<HeaderProps> = () => {
             <ListItem component={Link} to="/">
               <ListItemText primary="Home" />
             </ListItem>
-            <ListItem component={Link} to="/game">
-              <ListItemText primary="Game" />
-            </ListItem>
-            <ListItem component={Link} to="/db-test">
-              <ListItemText primary="DB" />
-            </ListItem>
-            <ListItem component={Link} to="/contain">
-              <ListItemText primary="Contain" />
-            </ListItem>
-            <ListItem component={Link} to="/grid">
-              <ListItemText primary="Grid" />
-            </ListItem>
           </List>
+          <Box sx={{ p: 2 }}>
+            {loggedInUser ? (
+              <>
+                <Typography variant="body1">
+                  Welcome, {loggedInUser.email.split('@')[0]}!
+                </Typography>
+                <Typography variant="body2">Email: {loggedInUser.email}</Typography>
+                <Typography variant="body2">UID: {loggedInUser.uid}</Typography>
+                <Button color="inherit" onClick={handleSignOut}>
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <Button color="inherit" onClick={handleGoogleLogin}>
+                Login with Google
+              </Button>
+            )}
+          </Box>
         </Box>
       </Drawer>
     </>

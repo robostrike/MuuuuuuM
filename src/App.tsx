@@ -1,36 +1,19 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
-import { DragDropContext, DropResult } from 'react-beautiful-dnd'; // Import DragDropContext
 import Theme from './theme';
-import DatabaseTest from './components/DatabaseTest';
-import GamePage from './pages/GamePage';
-import HomePage from './pages/HomePage';
-import FreeGrid from './pages/FreeGrid';
-import FreeLocale from './pages/FreeLocale';
 import ContainedPage from './pages/containedPage';
 import Header from './components/Header';
 
 function App() {
-  const onDragEnd = (result: DropResult) => {
-    // Handle drag-and-drop logic here
-    console.log(result);
-  };
 
   return (
     <ThemeProvider theme={Theme}>
       <BrowserRouter basename="/MuuuuuuM">
         <Header />
-        <DragDropContext onDragEnd={onDragEnd}>
           <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/game" element={<GamePage />} />
-            <Route path="/db-test" element={<DatabaseTest />} />
-            <Route path="/grid" element={<FreeGrid />} />
-            <Route path="/locale" element={<FreeLocale />} />
-            <Route path="/contain" element={<ContainedPage />} />
+            <Route path="/" element={<ContainedPage />} />
             {/* Add other routes as needed */}
           </Routes>
-        </DragDropContext>
       </BrowserRouter>
     </ThemeProvider>
   );
