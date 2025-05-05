@@ -70,6 +70,9 @@ const Header: React.FC<HeaderProps> = () => {
             <ListItem component={Link} to="/single">
               <ListItemText primary="Single" />
             </ListItem>
+            <ListItem component={Link} to="/contain">
+              <ListItemText primary="Contain" />
+            </ListItem>
           </List>
           <Box sx={{ p: 2 }}>
             {loggedInUser ? (

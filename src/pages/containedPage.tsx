@@ -91,7 +91,7 @@ const ContainedPage = () => {
           : pos
       )
     );
-
+    console.log('Updated positions:', positions);
     e.target.position(isWithinGrid ? { x, y } : { x: resetPosition.x, y: resetPosition.y });
   };
 
@@ -243,8 +243,8 @@ const ContainedPage = () => {
           <div key={item.id} style={{ textAlign: 'center' }}>
             <div>Item {item.id}</div> {/* Display item number */}
             <div>
-              ({Math.round(positions[index].x - stageWidth / 2)},{" "}
-              {Math.round(positions[index].y - (stageHeight / 2 + gridSize))})
+              ({Math.round(positions[index]?.x || 0)},{" "}
+              {Math.round(positions[index]?.y || 0)})
             </div>
           </div>
         ))}

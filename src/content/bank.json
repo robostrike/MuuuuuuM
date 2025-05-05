@@ -35,11 +35,5 @@
         { "id": 33, "word": "Galaxy" },
         { "id": 34, "word": "Whisper" },
         { "id": 35, "word": "Umbrella" }
-    ],
-    "gifs": [
-        { "id": 1, "gif": "/MuuuuuuM/content/MarriageStory.gif" }
-    ],
-    "png": [
-        { "id": 1, "png": "/MuuuuuuM/content/MarriageStory.png" }
     ]
 }

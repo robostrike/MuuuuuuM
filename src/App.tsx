@@ -14,6 +14,7 @@ function App() {
           <Routes>
             <Route path="/" element={<ContainedPage />} />
             <Route path="/single" element={<SinglePage />} />
+            <Route path="/contain" element={<ContainedPage />} />
           </Routes>
       </BrowserRouter>
     </ThemeProvider>

@@ -69,26 +69,18 @@ const ContainedPage = () => {
     }));
   };
 
-  const initialPositions = getInitialPositions();
-
-  const [positions, setPositions] = useState(initialPositions);
-
-  const [itemDisplay, setItemDisplay] = useState(
-    items.map(() => ({ x: 0, y: 0 }))
-  );
-
-  useEffect(() => {
-    const updatedDisplay = positions.map((pos) => {
-      // Calculate Cartesian coordinates relative to the origin of the grid
+  const mapPositionsToDisplay = (positions: { id: number; x: number; y: number }[]) => {
+    return positions.map((pos) => {
       const originX = (pos.x - offsetX) * (originGridSize / gridSize);
       const originY = (pos.y - itemHeight) * (originGridSize / gridSize);
-
-      console.log(`Item Position (Origin): x=${originX.toFixed(2)}, y=${originY.toFixed(2)}`);
+      console.log(`Mapped Position: Item ${pos.id}, x=${originX.toFixed(2)}, y=${originY.toFixed(2)}`);
       return { x: originX, y: originY };
     });
+  };
 
-    setItemDisplay(updatedDisplay);
-  }, [positions, offsetX, gridSize, originGridSize, itemHeight]);
+  const initialPositions = getInitialPositions();
+  const [positions, setPositions] = useState(initialPositions);
+  const [itemDisplay, setItemDisplay] = useState(mapPositionsToDisplay(initialPositions));
 
   const handleDragEnd = (e: KonvaEventObject<DragEvent>, id: number) => {
     const { x, y } = e.target.position();
@@ -102,6 +94,7 @@ const ContainedPage = () => {
 
     const resetPosition = positions.find((pos) => pos.id === id) || { id, x: 0, y: 0 };
 
+    // Create a new array reference using the spread operator
     const updatedPositions = positions.map((pos) =>
       pos.id === id
         ? isWithinGrid
@@ -110,8 +103,9 @@ const ContainedPage = () => {
         : pos
     );
 
-    setPositions([...updatedPositions]); // Ensure a new array reference is created
-    console.log('Updated Positions After Drag (Origin):', updatedPositions); // Log immediately after state update
+    setPositions([...updatedPositions]); // Update state with the new array reference
+    setItemDisplay(mapPositionsToDisplay(updatedPositions)); // Map positions to display immediately
+    console.log('Updated Positions After Drag:', updatedPositions); // Log updated positions
     e.target.position(isWithinGrid ? { x, y } : { x: resetPosition.x, y: resetPosition.y });
   };
 
@@ -120,9 +114,11 @@ const ContainedPage = () => {
   };
 
   const handleReset = () => {
-    setPositions(initialPositions); // Reset to initial positions
+    const resetPositions = [...initialPositions]; // Copy initial positions using spread operator
+    setPositions(resetPositions); // Update state with the copied list
+    setItemDisplay(mapPositionsToDisplay(resetPositions)); // Map positions to display immediately
     console.log('Reset Positions:');
-    initialPositions.forEach((pos) => {
+    resetPositions.forEach((pos) => {
       console.log(`Item ${pos.id}: x=${pos.x.toFixed(2)}, y=${pos.y.toFixed(2)}`);
     });
   };
