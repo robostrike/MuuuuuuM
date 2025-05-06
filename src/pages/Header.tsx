@@ -51,16 +51,17 @@ const Header: React.FC<HeaderProps> = () => {
 
   return (
     <>
-      <AppBar position="static">
+      <AppBar position="fixed" color="secondary"> {/* Changed color to secondary */}
         <Toolbar>
           <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleDrawer(true)}>
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            MuuuuuuM App
+            MuuuuuuM
           </Typography>
         </Toolbar>
       </AppBar>
+      <Toolbar /> {/* Add an empty Toolbar to offset the fixed AppBar */}
       <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
         <Box sx={{ width: 250 }} role="presentation" onClick={toggleDrawer(false)} onKeyDown={toggleDrawer(false)}>
           <List>
@@ -69,9 +70,6 @@ const Header: React.FC<HeaderProps> = () => {
             </ListItem>
             <ListItem component={Link} to="/single">
               <ListItemText primary="Single" />
-            </ListItem>
-            <ListItem component={Link} to="/contain">
-              <ListItemText primary="Contain" />
             </ListItem>
           </List>
           <Box sx={{ p: 2 }}>

@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import Theme from './theme';
-import ContainedPage from './pages/containedPage';
-import Header from './components/Header';
+import Header from './pages/Header';
 import SinglePage from './pages/SinglePage';
+import HomePage from './pages/HomePage';
 
 function App() {
 
@@ -12,9 +12,8 @@ function App() {
       <BrowserRouter basename="/MuuuuuuM">
         <Header />
           <Routes>
-            <Route path="/" element={<ContainedPage />} />
+            <Route path="/" element={<HomePage />} />
             <Route path="/single" element={<SinglePage />} />
-            <Route path="/contain" element={<ContainedPage />} />
           </Routes>
       </BrowserRouter>
     </ThemeProvider>

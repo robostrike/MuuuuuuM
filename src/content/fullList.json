@@ -1,0 +1,7 @@
+[
+  { "id": 1, "label": "Item 1", "color": "#a5a5a5", "icon": "icon1" },
+  { "id": 2, "label": "Item 2", "color": "#a4a4a4", "icon": "icon2" },
+  { "id": 3, "label": "Item 3", "color": "#a3a3a3", "icon": "icon3" },
+  { "id": 4, "label": "Item 4", "color": "#a2a2a2", "icon": "icon4" },
+  { "id": 5, "label": "Item 5", "color": "#a1a1a1", "icon": "icon5" }
+]
