@@ -10,8 +10,12 @@ import { createClient } from '@supabase/supabase-js';
 
 // Supabase configuration
 const supabaseUrl = 'https://pzyryihuzjablnicmcza.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB6eXJ5aWh1emphYmxuaWNtY3phIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0MjA4MTcsImV4cCI6MjA1ODk5NjgxN30.LaF7yVNw-u6lno1cc0tjEuS9pkOID1LD1PEMJjVJaQM';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+const supabaseService = createClient(
+  supabaseUrl,import.meta.env.VITE_SUPABASE_SERVICE_ROLE // Use the Service Role Key
+);
 
 const App: React.FC = () => {
   useEffect(() => {
@@ -34,8 +38,8 @@ const App: React.FC = () => {
           }
 
           if (!existingProfile) {
-            // Create a new profile in Supabase
-            const { error: profileError } = await supabase
+            // Use the service client to bypass RLS for the insert
+            const { error: profileError } = await supabaseService
               .from('profiles')
               .insert([{ firebase_user_id: firebaseUid, email: user.email }]);
 
@@ -44,6 +48,7 @@ const App: React.FC = () => {
             } else {
               console.log('Profile created successfully in Supabase.');
             }
+
           } else {
             console.log('User already exists in Supabase.');
           }
