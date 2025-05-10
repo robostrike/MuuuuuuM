@@ -1,0 +1,4 @@
+[
+  { "id": 1, "left": "no", "right": "yes", "down": "puzzling", "up": "confident" },
+  { "id": 2, "left": "disagree", "right": "agree", "down": "logical", "up": "emotional" }
+]

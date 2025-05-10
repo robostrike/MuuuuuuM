@@ -1,0 +1,4 @@
+[
+  { "id": 1, "label": "Hear", "color": "#303030", "icon": "../assets/hearing.svg" },
+  { "id": 2, "label": "Speak", "color": "#303030", "icon": "../assets/speaking.svg" }
+]

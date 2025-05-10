@@ -51,7 +51,12 @@ const Header: React.FC<HeaderProps> = () => {
 
   return (
     <>
-      <AppBar position="fixed" color="secondary"> {/* Changed color to secondary */}
+      <AppBar
+        position="fixed"
+        color="transparent"
+        elevation={0}
+        sx={{ zIndex: 1, backgroundColor: 'transparent' }} // Force transparency
+      >
         <Toolbar>
           <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleDrawer(true)}>
             <MenuIcon />
@@ -61,7 +66,7 @@ const Header: React.FC<HeaderProps> = () => {
           </Typography>
         </Toolbar>
       </AppBar>
-      <Toolbar /> {/* Add an empty Toolbar to offset the fixed AppBar */}
+      <Toolbar sx={{ height: '64px' }} /> {/* Adjusted height to match AppBar */}
       <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
         <Box sx={{ width: 250 }} role="presentation" onClick={toggleDrawer(false)} onKeyDown={toggleDrawer(false)}>
           <List>
@@ -78,7 +83,6 @@ const Header: React.FC<HeaderProps> = () => {
                 <Typography variant="body1">
                   Welcome, {loggedInUser.displayName || 'User'}!
                 </Typography>
-                <Typography variant="body2">UID: {loggedInUser.uid}</Typography>
                 <Button color="inherit" onClick={handleSignOut}>
                   Sign Out
                 </Button>

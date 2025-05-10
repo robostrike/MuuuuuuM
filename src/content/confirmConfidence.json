@@ -1,7 +1,6 @@
-{
-  "classificationWords": [
-    "yes",
-    "no",
+[
+    "great",
+    "fascinating",
     "maybe",
     "absolutely",
     "never",
@@ -192,5 +191,4 @@
     "untrustworthy",
     "reliable",
     "unreliable"
-  ]
-}
+]
